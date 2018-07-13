@@ -79,7 +79,6 @@ ui <- dashboardPage(
                           "Purple" = "purple",
                           "Orange" = "orange",
                           "Black" = "black",
-                          "White" = "white",
                           "Pink" = "pink"
                         )
             ),
@@ -93,7 +92,6 @@ ui <- dashboardPage(
                           "Purple" = "purple",
                           "Orange" = "orange",
                           "Black" = "black",
-                          "White" = "white",
                           "Pink" = "pink"
                         )
             )
