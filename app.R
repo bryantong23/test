@@ -68,6 +68,34 @@ ui <- dashboardPage(
                           "Group" = "group",
                           "ID" = "id"
                         )
+            ),
+            
+            selectInput(inputId = "color1",
+                        label = "Choose color for first group",
+                        choices = c(
+                          "Blue" = "blue",
+                          "Red" = "red",
+                          "Green" = "green",
+                          "Purple" = "purple",
+                          "Orange" = "orange",
+                          "Black" = "black",
+                          "White" = "white",
+                          "Pink" = "pink"
+                        )
+            ),
+            
+            selectInput(inputId = "color2",
+                        label = "Choose color for second group",
+                        choices = c(
+                          "Red" = "red",
+                          "Blue" = "blue",
+                          "Green" = "green",
+                          "Purple" = "purple",
+                          "Orange" = "orange",
+                          "Black" = "black",
+                          "White" = "white",
+                          "Pink" = "pink"
+                        )
             )
           )
         )
@@ -89,7 +117,7 @@ server <- function(input, output){
     dt <- read.csv(inFile$datapath, header = input$header)
     plot(dt[,input$xvar], 
          dt[,input$yvar],
-         col = "blue",
+         col = c(input$color1, input$color2)[dt$group],
          pch = 19,
          type = input$type, 
          xlab = toupper(input$xvar),
