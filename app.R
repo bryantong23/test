@@ -2,6 +2,10 @@ input <- list()
 input$file$datapath <- "/Users/bryan/Documents/shinypracticedata.csv"
 input$header <- TRUE
 
+#rgl, threejs, plotly, ggplot2
+library(rgl)
+library(car)
+library(colourpicker)
 library(shiny)
 library(shinydashboard)
 ui <- dashboardPage(
@@ -9,8 +13,9 @@ ui <- dashboardPage(
   dashboardHeader(title = "Shiny Practice"),
   dashboardSidebar(
     sidebarMenu(
-     menuItem("Graphs", tabName = "graphs"),
-     menuItem("Table", tabName = "table")
+     menuItem("Basic Graphs", tabName = "simpleGraphs"),
+     menuItem("Table", tabName = "table"),
+     menuItem("More Graphs", tabName = "moreGraphs")
     )
   ),
   dashboardBody(
@@ -22,7 +27,7 @@ ui <- dashboardPage(
       }
     '))),
     tabItems(
-      tabItem(tabName= "graphs",
+      tabItem(tabName= "simpleGraphs",
         fluidRow(
           box(plotOutput("plot", height = 500)),
           box(
@@ -70,38 +75,61 @@ ui <- dashboardPage(
                         )
             ),
             
-            selectInput(inputId = "color1",
+            colourInput(inputId = "color1",
                         label = "Choose color for first group",
-                        choices = c(
-                          "Blue" = "blue",
-                          "Red" = "red",
-                          "Green" = "green",
-                          "Purple" = "purple",
-                          "Orange" = "orange",
-                          "Black" = "black",
-                          "Pink" = "pink"
-                        )
+                        value = "blue",
+                        allowTransparent = TRUE,
+                        showColour = "background"
             ),
             
-            selectInput(inputId = "color2",
+            colourInput(inputId = "color2",
                         label = "Choose color for second group",
-                        choices = c(
-                          "Red" = "red",
-                          "Blue" = "blue",
-                          "Green" = "green",
-                          "Purple" = "purple",
-                          "Orange" = "orange",
-                          "Black" = "black",
-                          "Pink" = "pink"
-                        )
+                        value = "red",
+                        allowTransparent = TRUE,
+                        showColour = "background"
             )
           )
         )
       ),
       
       tabItem(tabName = "table",
-              box(tableOutput("table"), width = 7)      
-      )
+              box(tableOutput("table"), width = 7)
+      ),
+      
+      tabItem(tabName = "moreGraphs",
+              fluidRow(
+                box(rglwidgetOutput("plots", height = 800)),
+                box(
+                  title = "Controls",
+                  selectInput(inputId = "xvar1", 
+                              label = "Choose X variable", 
+                              choices = c(
+                                "Time" = "time",
+                                "Value" = "value",
+                                "Group" = "group",
+                                "ID" = "id"
+                              )
+                  ),
+                  selectInput(inputId = "yvar1", 
+                              label = "Choose Y variable", 
+                              choices = c(
+                                "Value" = "value",
+                                "Time" = "time",
+                                "Group" = "group",
+                                "ID" = "id"
+                              )
+                  ),
+                  selectInput(inputId = "zvar1", 
+                              label = "Choose Z variable", 
+                              choices = c(
+                                "ID" = "id",
+                                "Value" = "value",
+                                "Group" = "group",
+                                "Time" = "time"
+                              )
+                  )
+                )
+              ))
     )
   )
 )
@@ -113,6 +141,7 @@ server <- function(input, output){
       need(input$file != "", label = "Data set")
     )
     dt <- read.csv(inFile$datapath, header = input$header)
+    #dt.names <- names(dt)
     plot(dt[,input$xvar], 
          dt[,input$yvar],
          col = c(input$color1, input$color2)[dt$group],
@@ -144,6 +173,21 @@ server <- function(input, output){
     datafr <- data.frame(ids, data.means, data.sems)
     datafr
   })
+  output$plots <- renderRglwidget({
+    data.File <- input$file
+    validate(
+      need(input$file != "", label = "Data set")
+    )
+    datavalues <- read.csv(data.File$datapath, header = input$header)
+    rgl.open(useNULL=T)
+    scatter3d(datavalues[,input$xvar1],
+              datavalues[,input$yvar1],
+              datavalues[,input$zvar1],
+              xlab = toupper(input$xvar1),
+              ylab = toupper(input$yvar1),
+              zlab = toupper(input$zvar1))
+    rglwidget()
+  }) 
 }
 std <- function(x) sd(x)/sqrt(5)
 
