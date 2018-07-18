@@ -124,7 +124,12 @@ ui <- dashboardPage(
                                 "Value" = "value",
                                 "Time" = "time"
                               )
-                  )
+                  ),
+                  height = 300,
+                  colourInput(inputId = "color3d",
+                              label = "Choose color for points",
+                              value = "red",
+                              showColour = "background")
                 )
               ))
     )
@@ -182,7 +187,9 @@ server <- function(input, output){
               datavalues[,input$zvar1],
               xlab = toupper(input$xvar1),
               ylab = toupper(input$yvar1),
-              zlab = toupper(input$zvar1))
+              zlab = toupper(input$zvar1),
+              point.col = input$color3d
+              )
     rglwidget()
   }) 
 }
