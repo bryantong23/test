@@ -106,7 +106,6 @@ ui <- dashboardPage(
                               choices = c(
                                 "Time" = "time",
                                 "Value" = "value",
-                                "Group" = "group",
                                 "ID" = "id"
                               )
                   ),
@@ -115,7 +114,6 @@ ui <- dashboardPage(
                               choices = c(
                                 "Value" = "value",
                                 "Time" = "time",
-                                "Group" = "group",
                                 "ID" = "id"
                               )
                   ),
@@ -124,7 +122,6 @@ ui <- dashboardPage(
                               choices = c(
                                 "ID" = "id",
                                 "Value" = "value",
-                                "Group" = "group",
                                 "Time" = "time"
                               )
                   )
