@@ -3,8 +3,10 @@ input$file$datapath <- "/Users/bryan/Documents/shinypracticedata.csv"
 input$header <- TRUE
 
 #rgl, threejs, plotly, ggplot2
+library(rmarkdown)
 library(rgl)
 library(car)
+library(plotly)
 library(colourpicker)
 library(shiny)
 library(shinydashboard)
@@ -15,7 +17,8 @@ ui <- dashboardPage(
     sidebarMenu(
      menuItem("Basic Graphs", tabName = "simpleGraphs"),
      menuItem("Table", tabName = "table"),
-     menuItem("More Graphs", tabName = "moreGraphs")
+     menuItem("3D Graphs", tabName = "3DGraphs"),
+     menuItem("Plotly Graphs", tabName = "plotly")
     )
   ),
   dashboardBody(
@@ -96,7 +99,7 @@ ui <- dashboardPage(
               box(tableOutput("table"), width = 7)
       ),
       
-      tabItem(tabName = "moreGraphs",
+      tabItem(tabName = "3DGraphs",
               fluidRow(
                 box(rglwidgetOutput("plots", height = 800)),
                 box(
@@ -125,13 +128,27 @@ ui <- dashboardPage(
                                 "Time" = "time"
                               )
                   ),
-                  height = 300,
+                  height = 350,
                   colourInput(inputId = "color3d",
                               label = "Choose color for points",
                               value = "red",
                               showColour = "background")
                 )
-              ))
+              )
+      ),
+      
+      tabItem(tabName = "plotly",
+              fluidRow(
+                box(plotlyOutput("plotly"), 
+                    height = 500, 
+                    width = 200),
+                box(colourInput(inputId = "colorplotly",
+                                label = "Choose color for data",
+                                value = "green",
+                                showColour = "background")
+                )
+              )
+      )
     )
   )
 )
@@ -155,6 +172,7 @@ server <- function(input, output){
          ylim = c(-3,5),
          main = "Practice Data")
   })
+  
   output$table <- renderTable({
     dataFile <- input$file
     validate(
@@ -175,6 +193,7 @@ server <- function(input, output){
     datafr <- data.frame(ids, data.means, data.sems)
     datafr
   })
+  
   output$plots <- renderRglwidget({
     data.File <- input$file
     validate(
@@ -191,6 +210,35 @@ server <- function(input, output){
               point.col = input$color3d
               )
     rglwidget()
+  })
+  
+  output$plotly <- renderPlotly({
+    file <- input$file
+    validate(
+      need(input$file != "", label = "Data set")
+    )
+    data.values <- read.csv(file$datapath, header = input$header)
+    plot_ly(data.values, 
+            x = ~id, 
+            y = ~value,
+            z = ~time,
+            color = ~group,
+            marker = list(color = ~group, 
+                          colorscale = c('#FFE1A1', '#683531'), 
+                          showscale = TRUE)) %>%
+            add_markers() %>%
+            layout(scene = list(xaxis = list(title = 'ID'),
+                                yaxis = list(title = 'Value'),
+                                zaxis = list(title = 'Time')),
+            annotations = list(
+                     x = 1.13,
+                     y = 1.05,
+                     text = 'Group',
+                     xref = 'paper',
+                     yref = 'paper',
+                     showarrow = FALSE),
+            color = I(input$colorplotly),
+            type = "box")
   }) 
 }
 std <- function(x) sd(x)/sqrt(5)
